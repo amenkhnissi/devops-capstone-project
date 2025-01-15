@@ -21,6 +21,7 @@ DATABASE_URI = os.getenv(
 BASE_URL = "/accounts"
 HTTPS_ENVIRON = {'wsgi.url_scheme': 'https'}
 
+
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
@@ -52,10 +53,6 @@ class TestAccountService(TestCase):
         """Runs once after each test case"""
         db.session.remove()
 
-    ######################################################################
-    #  H E L P E R   M E T H O D S
-    ######################################################################
-
     def _create_accounts(self, count):
         """Factory method to create accounts in bulk"""
         accounts = []
@@ -72,12 +69,9 @@ class TestAccountService(TestCase):
             accounts.append(account)
         return accounts
 
-    ######################################################################
-    #  A C C O U N T   T E S T   C A S E S
-    ######################################################################
-
     def test_index(self):
         """It should get 200_OK from the Home Page"""
+
         response = self.client.get("/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -124,10 +118,11 @@ class TestAccountService(TestCase):
             content_type="test/html"
         )
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
-    
-    # GET ACCOUNT
+
+# GET ACCOUNT
     def test_get_account(self):
         """It should Read a single Account"""
+
         account = self._create_accounts(1)[0]
         resp = self.client.get(
             f"{BASE_URL}/{account.id}", content_type="application/json"
@@ -136,13 +131,13 @@ class TestAccountService(TestCase):
         data = resp.get_json()
         self.assertEqual(data["name"], account.name)
 
-
     def test_get_account_not_found(self):
         """It should not Read an Account that is not found"""
         resp = self.client.get(f"{BASE_URL}/0")
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND) 
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
-    # GET ACCOUNT LIST 
+    # GET ACCOUNT LIST
+
     def test_get_account_list(self):
         """It should Get a list of Accounts"""
         self._create_accounts(5)
@@ -151,7 +146,6 @@ class TestAccountService(TestCase):
         data = resp.get_json()
         self.assertEqual(len(data), 5)
 
-    # UPDATE ACCOUNT 
     def test_update_account(self):
         """It should Update an existing Account"""
         # create an Account to update
@@ -167,20 +161,23 @@ class TestAccountService(TestCase):
         updated_account = resp.get_json()
         self.assertEqual(updated_account["name"], "Something Known")
 
-    #DELETE ACCOUNT    
+    # DELETE ACCOUNT
+
     def test_delete_account(self):
         """It should Delete an Account"""
         account = self._create_accounts(1)[0]
         resp = self.client.delete(f"{BASE_URL}/{account.id}")
-        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT) 
-            
-    #METHOD NOT ALLOWED
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
+    # METHOD NOT ALLOWED
+
     def test_method_not_allowed(self):
         """It should not allow an illegal method call"""
         resp = self.client.delete(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    #SECURITY HEADERS
+    # SECURITY HEADERSs
+
     def test_security_headers(self):
         """It should return security headers"""
         response = self.client.get('/', environ_overrides=HTTPS_ENVIRON)
@@ -194,7 +191,8 @@ class TestAccountService(TestCase):
         for key, value in headers.items():
             self.assertEqual(response.headers.get(key), value)
 
-    #CORS SECURITY
+    # CORS SECURITY
+
     def test_cors_security(self):
         """It should return a CORS header"""
         response = self.client.get('/', environ_overrides=HTTPS_ENVIRON)
